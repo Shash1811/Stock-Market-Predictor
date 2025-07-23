@@ -38,11 +38,4 @@ A **Streamlit-based web app** that predicts stock prices using a trained **LSTM 
 
 ---
 
-## 🚀 Getting Started
-
-1. Clone the repository
-2. Install required libraries from `requirements.txt`
-3. Run the Streamlit app:
-   ```bash
-   streamlit run app.py
 
