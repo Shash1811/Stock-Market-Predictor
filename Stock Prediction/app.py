@@ -6,7 +6,10 @@ import streamlit as st
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import MinMaxScaler
 from datetime import datetime, timedelta
+import os
+import gdown  # <-- NEW
 
+# ----------------- Styling -----------------
 st.markdown(
     """
     <style>
@@ -19,12 +22,21 @@ st.markdown(
     unsafe_allow_html=True
 )
 
+# ----------------- Download & Load Model -----------------
+# Google Drive File ID (from your share link)
+file_id = "1ed7SiQg-tMyn0Op7UHYwpqfXe6FjY3Ij"
+download_url = f"https://drive.google.com/uc?id={file_id}"
+local_model_path = "stock_model.keras"
 
-
+# Download only if not already present
+if not os.path.exists(local_model_path):
+    with st.spinner("Downloading model... please wait ⏳"):
+        gdown.download(download_url, local_model_path, quiet=False)
 
 # Load the trained model
-model = load_model(r'C:\Users\Shashwati B.U\OneDrive\Desktop\Stock Prediction\stock_model.keras')
+model = load_model(local_model_path)
 
+# ----------------- Streamlit App -----------------
 st.header('📈 Stock Market Predictor')
 
 # Date range: last 10 years
@@ -43,11 +55,11 @@ if data.empty or 'Close' not in data.columns:
 
 # Show data
 st.subheader('Stock Data')
-st.write(data)  # show last few rows
+st.write(data)
 
 # Preprocessing
-data_train = pd.DataFrame(data.Close[:int(len(data)*0.80)])
-data_test = pd.DataFrame(data.Close[int(len(data)*0.80):])
+data_train = pd.DataFrame(data.Close[:int(len(data) * 0.80)])
+data_test = pd.DataFrame(data.Close[int(len(data) * 0.80):])
 
 scaler = MinMaxScaler(feature_range=(0, 1))
 pas_100_days = data_train.tail(100)
@@ -88,7 +100,7 @@ st.pyplot(fig3)
 # Predictions
 x, y = [], []
 for i in range(100, data_test_scaler.shape[0]):
-    x.append(data_test_scaler[i-100:i])
+    x.append(data_test_scaler[i - 100:i])
     y.append(data_test_scaler[i, 0])
 x = np.array(x)
 y = np.array(y)
@@ -119,7 +131,7 @@ st.subheader('📊 Investment Suggestion')
 try:
     latest_ma50 = ma_50_days.dropna().iloc[-1]
     latest_ma200 = ma_200_days.dropna().iloc[-1]
-    
+
     if float(latest_ma50) > float(latest_ma200):
         st.success("✅ 50-day MA is above 200-day MA — indicates **positive trend**. You *may* consider investing.")
     else:
